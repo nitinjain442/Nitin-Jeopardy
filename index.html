@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="ui.jqgrid.css">
+        <script src="jquery-1.7.2.min.js"></script>
+        <script src="jquery.jqGrid.min.js"></script>
+        <script src="jquery.jqGrid.src.js"></script>
+           <style>
+               .showElement{
+                   display: inline-block;
+               }
+
+               .hideElement{
+                   display: none;
+                   visibility: hidden;
+               }
+               #parentDiv{
+                   top : 20px;
+                   left : 20px;                  
+               }
+               #inputDiv{
+                top: 10px;
+                left: 50px;
+                position: absolute;
+               }
+               #dataDiv{
+                top: 50px;
+                left: 50px;
+                bottom: 10px;
+                float: left;
+                position: absolute;
+                height: 500px;
+                overflow-y: auto;
+               }
+           </style>
+    </head>
+    <body>
+    <script>      
+        $(document).ready(function(){ 
+            $("#dataGrid").jqGrid({
+                datatype: "local",
+                colNames:['Difficulty','Category','Question','Answer','Air Date', 'Id'],
+                colModel:[
+                    {name:'value'},
+                    {name:'title'},
+                    {name:'question'},	
+                    {name:'answer'},
+                    {name:'airdate'},
+                    {name:'id'}
+                ],   
+                loadonce: true
+                });
+                
+            var urlStr = "";       
+             function fetchGridData(type) {    
+                $.getJSON( urlStr, function( resp ) {
+                    var title = resp.title;
+                    var response = type == 'cid' ? resp.clues : resp;
+                    $.each(response, function(i,v){
+                        v.title = title;
+                    }) 
+                    $("#dataGrid").jqGrid('clearGridData');
+                    $("#dataGrid").jqGrid('setGridParam', { data: response}).trigger('reloadGrid');
+                });       				
+            }   
+           
+            $('#inputType').change(function(){
+                $("#dataGrid").jqGrid('clearGridData');
+                var type = $("#inputType option:selected").val();
+                if(type == 'cid'){
+                    $('.dateip').addClass('hideElement').removeClass('showElement');
+                    $('#ip').addClass('showElement').removeClass('hideElement');
+                    $('#difficulty').addClass('hideElement').removeClass('showElement');
+                }else if(type == 'dr'){
+                    $('#ip').addClass('hideElement').removeClass('showElement');
+                    $('.dateip').addClass('showElement').removeClass('hideElement');
+                    $('#difficulty').addClass('hideElement').removeClass('showElement');
+                } 
+                else if(type == 'value'){
+                    $('#ip').addClass('hideElement').removeClass('showElement');
+                    $('.dateip').addClass('hideElement').removeClass('showElement');
+                    $('#difficulty').addClass('showElement').removeClass('hideElement');
+                }               
+            });
+            $('#searchBtn').click(function(){
+                var type = $("#inputType option:selected").val();
+                if(type == 'cid'){
+                    urlStr = "http://jservice.io/api/category?";
+                    urlStr = urlStr + 'id='+ $('#ip').val();
+                }else if(type == 'dr'){
+                    urlStr = "http://jservice.io/api/clues?";
+                    urlStr = urlStr + 'min_date="'+ $('#date1').val()+'"&max_date="'+ $('#date2').val()+'"';
+                }else if(type == "value"){
+                    urlStr = "http://jservice.io/api/clues?";
+                    urlStr = urlStr + 'value='+ $('#difficulty').val();
+                }
+                fetchGridData(type);
+               
+            });
+        });
+    </script> 
+        <div id='parentDiv'>
+            <div id="inputDiv">
+                    <select id="inputType">
+                        <option value="cid" selected>Category Id</option>
+                        <option value="dr">Date Range</option>
+                        <option value="value">Difficulty</option>
+                    </select>
+                    <input id="ip" type="text"/>
+                    <input id="date1" class="dateip hideElement" type="date" />
+                    <input id="date2" class="dateip hideElement" type="date"/>
+                    <input id="difficulty" class="hideElement"/>
+                    <button id="searchBtn">Search</button>
+            </div>            
+            <div id="dataDiv">
+                    <table id="dataGrid"></table>
+            </div>
+        </div>       
+        
+    </body>    
+</html>
