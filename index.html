@@ -1,4 +1,10 @@
 <html>
+    <header>
+    <h1 align="center" style="color:#156CA4; font-size:50px">Welcome to Jeopardy</h1>
+    <h3 align="center" style="color:#156CA4">America's Favorite Quiz Show</h3>
+    <h5>Search by Category:</h5>
+    </header>
+    
     <head>
         <link rel="stylesheet" href="ui.jqgrid.css">
         <script src="jquery-1.7.2.min.js"></script>
@@ -7,6 +13,7 @@
            <style>
                .showElement{
                    display: inline-block;
+                   
                }
 
                .hideElement{
@@ -14,55 +21,56 @@
                    visibility: hidden;
                }
                #parentDiv{
-                   top : 20px;
-                   left : 20px;                  
+                   top : 800px;
+                   left : 20px;
                }
                #inputDiv{
-                top: 10px;
+                top: 200px;
                 left: 50px;
                 position: absolute;
                }
                #dataDiv{
-                top: 50px;
+                top: 250px;
                 left: 50px;
                 bottom: 10px;
                 float: left;
                 position: absolute;
                 height: 500px;
                 overflow-y: auto;
+                
                }
            </style>
-    </head>
+    </head>    
     <body>
-    <script>      
-        $(document).ready(function(){ 
+    <script>
+        $(document).ready(function(){
             $("#dataGrid").jqGrid({
                 datatype: "local",
                 colNames:['Difficulty','Category','Question','Answer','Air Date', 'Id'],
                 colModel:[
                     {name:'value'},
                     {name:'title'},
-                    {name:'question'},	
+                    {name:'question'},
                     {name:'answer'},
                     {name:'airdate'},
                     {name:'id'}
-                ],   
+                ],
                 loadonce: true
                 });
-                
-            var urlStr = "";       
-             function fetchGridData(type) {    
+
+            var urlStr = "";
+             function fetchGridData(type) {
                 $.getJSON( urlStr, function( resp ) {
                     var title = resp.title;
                     var response = type == 'cid' ? resp.clues : resp;
                     $.each(response, function(i,v){
                         v.title = title;
-                    }) 
+                    })
                     $("#dataGrid").jqGrid('clearGridData');
                     $("#dataGrid").jqGrid('setGridParam', { data: response}).trigger('reloadGrid');
-                });       				
-            }   
-           
+                });
+            }
+
             $('#inputType').change(function(){
                 $("#dataGrid").jqGrid('clearGridData');
                 var type = $("#inputType option:selected").val();
@@ -74,12 +82,12 @@
                     $('#ip').addClass('hideElement').removeClass('showElement');
                     $('.dateip').addClass('showElement').removeClass('hideElement');
                     $('#difficulty').addClass('hideElement').removeClass('showElement');
-                } 
+                }
                 else if(type == 'value'){
                     $('#ip').addClass('hideElement').removeClass('showElement');
                     $('.dateip').addClass('hideElement').removeClass('showElement');
                     $('#difficulty').addClass('showElement').removeClass('hideElement');
-                }               
+                }
             });
             $('#searchBtn').click(function(){
                 var type = $("#inputType option:selected").val();
@@ -94,10 +102,10 @@
                     urlStr = urlStr + 'value='+ $('#difficulty').val();
                 }
                 fetchGridData(type);
-               
+
             });
         });
-    </script> 
+    </script>
         <div id='parentDiv'>
             <div id="inputDiv">
                     <select id="inputType">
@@ -110,11 +118,11 @@
                     <input id="date2" class="dateip hideElement" type="date"/>
                     <input id="difficulty" class="hideElement"/>
                     <button id="searchBtn">Search</button>
-            </div>            
+            </div>
             <div id="dataDiv">
                     <table id="dataGrid"></table>
             </div>
-        </div>       
-        
-    </body>    
+        </div>
+
+    </body>
 </html>
